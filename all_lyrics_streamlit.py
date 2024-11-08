@@ -306,12 +306,13 @@ else:
         "view_count", ascending=False
     )
 
-options = st.multiselect(
-    "好きな曲を選んでください（複数選択できて、文字での検索もできます）",
-    _df_sorted["title"],
-    placeholder=f"全曲リスト（人気順）",
-    label_visibility="visible",
-)
+if selected_artist:
+    options = st.multiselect(
+        "好きな曲を選んでください（複数選択できて、文字での検索もできます）",
+        _df_sorted["title"],
+        placeholder=f"全曲リスト（人気順）",
+        label_visibility="visible",
+    )
 
 if options:
     # マルチセレクトのアクティブ時
