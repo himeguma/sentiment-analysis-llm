@@ -314,217 +314,278 @@ if selected_artist:
         label_visibility="visible",
     )
 
-if options:
-    # マルチセレクトのアクティブ時
-    # 選択した曲に絞り込み
-    selected_df = df[df["title"].isin(options)]
-    # 表示するものに絞り込む
-    selected_df_display = selected_df[["曲名", "image_url"] + EMOTION_LIST]
+    if options:
+        # マルチセレクトのアクティブ時
+        # 選択した曲に絞り込み
+        selected_df = df[df["title"].isin(options)]
+        # 表示するものに絞り込む
+        selected_df_display = selected_df[["曲名", "image_url"] + EMOTION_LIST]
 
-    st.write("")
-    if st.button("8つの感情とは？　▼"):
-        emotion_discription()
+        st.write("")
+        if st.button("8つの感情とは？　▼"):
+            emotion_discription()
 
-    st.write("↓　歌詞の感情を100点満点で点数をつけました")
-    # 選択した曲の表示
-    st.dataframe(
-        selected_df_display,
-        column_config={
-            "image_url": st.column_config.ImageColumn("写真", width=None),
-            "喜び": st.column_config.ProgressColumn(
-                "喜び", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "信頼": st.column_config.ProgressColumn(
-                "信頼", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "恐れ": st.column_config.ProgressColumn(
-                "恐れ", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "驚き": st.column_config.ProgressColumn(
-                "驚き", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "悲しみ": st.column_config.ProgressColumn(
-                "悲しみ",
-                format="%f",
-                min_value=0,
-                max_value=100,
-                width="small",
-            ),
-            "嫌悪": st.column_config.ProgressColumn(
-                "嫌悪", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "怒り": st.column_config.ProgressColumn(
-                "怒り", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "期待": st.column_config.ProgressColumn(
-                "期待", format="%f", min_value=0, max_value=100, width="small"
-            ),
-        },
-        use_container_width=False,
-        hide_index=True,
-    )
-
-    st.write("")
-
-    # expanderで理由書きの表示
-    with st.expander("点数の理由はここをクリック　▼"):
+        st.write("↓　歌詞の感情を100点満点で点数をつけました")
+        # 選択した曲の表示
+        st.dataframe(
+            selected_df_display,
+            column_config={
+                "image_url": st.column_config.ImageColumn("写真", width=None),
+                "喜び": st.column_config.ProgressColumn(
+                    "喜び",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "信頼": st.column_config.ProgressColumn(
+                    "信頼",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "恐れ": st.column_config.ProgressColumn(
+                    "恐れ",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "驚き": st.column_config.ProgressColumn(
+                    "驚き",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "悲しみ": st.column_config.ProgressColumn(
+                    "悲しみ",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "嫌悪": st.column_config.ProgressColumn(
+                    "嫌悪",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "怒り": st.column_config.ProgressColumn(
+                    "怒り",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "期待": st.column_config.ProgressColumn(
+                    "期待",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+            },
+            use_container_width=False,
+            hide_index=True,
+        )
 
         st.write("")
 
-        if len(options) > 1:
-            st.write("※下の曲名を押すと曲を切り替えられます")
-        # 選ばれた曲ごとにタブを動的に生成
-        tab_objects = st.tabs(options)
+        # expanderで理由書きの表示
+        with st.expander("点数の理由はここをクリック　▼"):
 
-        # 各タブに対応するコンテンツを表示
-        for tab, each_option in zip(tab_objects, options):
-            with tab:
-                for each_emotion in EMOTION_LIST:
-                    # 感情ごとに色を変えて得点とその理由を表示
-                    st.write(
-                        f"<span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span> {each_emotion}　{str(
-                                    selected_df[selected_df["曲名"] == each_option][
-                                        each_emotion
-                                    ].values[0]
-                                )}点 <span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span>",
-                        unsafe_allow_html=True,
-                    )
-                    st.write(
-                        selected_df[selected_df["曲名"] == each_option][
-                            each_emotion + "スコアの理由"
-                        ].values[0]
-                    )
+            st.write("")
 
-    st.write("")
+            if len(options) > 1:
+                st.write("※下の曲名を押すと曲を切り替えられます")
+            # 選ばれた曲ごとにタブを動的に生成
+            tab_objects = st.tabs(options)
 
-    # 選択範囲のチャートを表示
-    st.subheader(
-        ":chart_with_upwards_trend:感情グラフ",
-        anchor=False,
-        divider="red",
-    )
-    # グラフに表示するために得点を記録
-    values = selected_df[EMOTION_GRAPH].mean().astype(int).to_list()
+            # 各タブに対応するコンテンツを表示
+            for tab, each_option in zip(tab_objects, options):
+                with tab:
+                    for each_emotion in EMOTION_LIST:
+                        # 感情ごとに色を変えて得点とその理由を表示
+                        st.write(
+                            f"<span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span> {each_emotion}　{str(
+                                        selected_df[selected_df["曲名"] == each_option][
+                                            each_emotion
+                                        ].values[0]
+                                    )}点 <span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span>",
+                            unsafe_allow_html=True,
+                        )
+                        st.write(
+                            selected_df[selected_df["曲名"] == each_option][
+                                each_emotion + "スコアの理由"
+                            ].values[0]
+                        )
 
-    # 各感情とその平均スコアをタプルのリストにする
-    emotion_scores = list(zip(EMOTION_GRAPH, values))
+        st.write("")
 
-    # スコアの高い順にソート
-    top_emotions = sorted(emotion_scores, key=lambda x: x[1], reverse=True)[:1]
-
-    st.write("")
-
-    st.write(
-        f"あなたは**{top_emotions[0][0]}**が大きい曲が好きなのかもしれません"
-    )
-    # レーダーチャートを表示
-    st.plotly_chart(
-        plot_radar_chart_graph(values),
-        use_container_width=True,
-        config={"displayModeBar": False},
-        key="chart1",  # ユニークなキー
-    )
-
-    st.write("")
-
-    # マルチセレクトのアクティブ時
-    st.subheader(
-        "あなたの好きな曲に似た感情の曲",
-        anchor=False,
-        divider="red",
-    )
-
-    # 選択されたスコアの値
-    selected_song_scores = pd.DataFrame(values).T
-    # コサイン類似度を計算
-    df_emotion = df[EMOTION_GRAPH]
-    similarities = cosine_similarity(selected_song_scores, df_emotion)[0]
-
-    # 類似度に基づきデータフレームに新しい列を追加
-    df_emotion["similarity"] = similarities
-
-    # 類似度が高い順にソート
-    top_similar_df = df_emotion.sort_values(by="similarity", ascending=False)
-
-    # 類似度の高い曲の元の情報を参照
-    df_similarity = df.loc[top_similar_df.index.to_list()]
-    # 選択済みの曲は除外
-    df_similarity = df_similarity[~df_similarity["曲名"].isin(options)]
-
-    # 必要に応じてアーティストで絞り込み
-    if selected_artist == "全アーティスト":
-        df_similarity = df_similarity.sort_values(
-            "view_count", ascending=False
+        # 選択範囲のチャートを表示
+        st.subheader(
+            ":chart_with_upwards_trend:感情グラフ",
+            anchor=False,
+            divider="red",
         )
-    else:
-        df_similarity = df_similarity[
-            df_similarity["アーティスト"] == selected_artist
-        ].sort_values("view_count", ascending=False)
+        # グラフに表示するために得点を記録
+        values = selected_df[EMOTION_GRAPH].mean().astype(int).to_list()
 
-    # 順位の列を追加する
-    df_similarity["順位"] = range(1, len(df_similarity) + 1)
-    df_similarity["順位"] = df_similarity["順位"].astype(str) + "位"
+        # 各感情とその平均スコアをタプルのリストにする
+        emotion_scores = list(zip(EMOTION_GRAPH, values))
 
-    # 表示するものに絞り込む
-    df_similarity_display = df_similarity[
-        ["順位", "image_url", "曲名", "アーティスト", "作詞"] + EMOTION_LIST
-    ].head(n=10)
+        # スコアの高い順にソート
+        top_emotions = sorted(
+            emotion_scores, key=lambda x: x[1], reverse=True
+        )[:1]
 
-    st.write(":medal:**1位は...**")
+        st.write("")
 
-    st.image(
-        df_similarity_display[df_similarity["順位"] == "1位"][
-            "image_url"
-        ].values[0],
-        width=300,
-    )
-    st.write(
-        f"**{df_similarity_display[df_similarity["順位"] == "1位"]["曲名"].values[0]}**　です！"
-    )
-    st.write("")
+        st.write(
+            f"あなたは**{top_emotions[0][0]}**が大きい曲が好きなのかもしれません"
+        )
+        # レーダーチャートを表示
+        st.plotly_chart(
+            plot_radar_chart_graph(values),
+            use_container_width=True,
+            config={"displayModeBar": False},
+            key="chart1",  # ユニークなキー
+        )
 
-    # 類似度の高い曲の表示
-    st.dataframe(
-        df_similarity_display,
-        column_config={
-            "image_url": st.column_config.ImageColumn("写真", width=None),
-            "喜び": st.column_config.ProgressColumn(
-                "喜び", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "信頼": st.column_config.ProgressColumn(
-                "信頼", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "恐れ": st.column_config.ProgressColumn(
-                "恐れ", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "驚き": st.column_config.ProgressColumn(
-                "驚き", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "悲しみ": st.column_config.ProgressColumn(
-                "悲しみ",
-                format="%f",
-                min_value=0,
-                max_value=100,
-                width="small",
-            ),
-            "嫌悪": st.column_config.ProgressColumn(
-                "嫌悪", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "怒り": st.column_config.ProgressColumn(
-                "怒り", format="%f", min_value=0, max_value=100, width="small"
-            ),
-            "期待": st.column_config.ProgressColumn(
-                "期待", format="%f", min_value=0, max_value=100, width="small"
-            ),
-        },
-        use_container_width=False,
-        hide_index=True,
-        on_select=dataframe_row_selection_change_1,
-        selection_mode=["single-row"],
-        key="data_similarity",
-    )
+        st.write("")
 
-    st.write(":arrow_up:**この列を押すと分析結果がでます**")
+        # マルチセレクトのアクティブ時
+        st.subheader(
+            "あなたの好きな曲に似た感情の曲",
+            anchor=False,
+            divider="red",
+        )
+
+        # 選択されたスコアの値
+        selected_song_scores = pd.DataFrame(values).T
+        # コサイン類似度を計算
+        df_emotion = df[EMOTION_GRAPH]
+        similarities = cosine_similarity(selected_song_scores, df_emotion)[0]
+
+        # 類似度に基づきデータフレームに新しい列を追加
+        df_emotion["similarity"] = similarities
+
+        # 類似度が高い順にソート
+        top_similar_df = df_emotion.sort_values(
+            by="similarity", ascending=False
+        )
+
+        # 類似度の高い曲の元の情報を参照
+        df_similarity = df.loc[top_similar_df.index.to_list()]
+        # 選択済みの曲は除外
+        df_similarity = df_similarity[~df_similarity["曲名"].isin(options)]
+
+        # 必要に応じてアーティストで絞り込み
+        if selected_artist == "全アーティスト":
+            df_similarity = df_similarity.sort_values(
+                "view_count", ascending=False
+            )
+        else:
+            df_similarity = df_similarity[
+                df_similarity["アーティスト"] == selected_artist
+            ].sort_values("view_count", ascending=False)
+
+        # 順位の列を追加する
+        df_similarity["順位"] = range(1, len(df_similarity) + 1)
+        df_similarity["順位"] = df_similarity["順位"].astype(str) + "位"
+
+        # 表示するものに絞り込む
+        df_similarity_display = df_similarity[
+            ["順位", "image_url", "曲名", "アーティスト", "作詞"]
+            + EMOTION_LIST
+        ].head(n=10)
+
+        st.write(":medal:**1位は...**")
+
+        st.image(
+            df_similarity_display[df_similarity["順位"] == "1位"][
+                "image_url"
+            ].values[0],
+            width=300,
+        )
+        st.write(
+            f"**{df_similarity_display[df_similarity["順位"] == "1位"]["曲名"].values[0]}**　です！"
+        )
+        st.write("")
+
+        # 類似度の高い曲の表示
+        st.dataframe(
+            df_similarity_display,
+            column_config={
+                "image_url": st.column_config.ImageColumn("写真", width=None),
+                "喜び": st.column_config.ProgressColumn(
+                    "喜び",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "信頼": st.column_config.ProgressColumn(
+                    "信頼",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "恐れ": st.column_config.ProgressColumn(
+                    "恐れ",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "驚き": st.column_config.ProgressColumn(
+                    "驚き",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "悲しみ": st.column_config.ProgressColumn(
+                    "悲しみ",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "嫌悪": st.column_config.ProgressColumn(
+                    "嫌悪",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "怒り": st.column_config.ProgressColumn(
+                    "怒り",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+                "期待": st.column_config.ProgressColumn(
+                    "期待",
+                    format="%f",
+                    min_value=0,
+                    max_value=100,
+                    width="small",
+                ),
+            },
+            use_container_width=False,
+            hide_index=True,
+            on_select=dataframe_row_selection_change_1,
+            selection_mode=["single-row"],
+            key="data_similarity",
+        )
+
+        st.write(":arrow_up:**この列を押すと分析結果がでます**")
 
 st.write("")
 st.divider()
