@@ -300,24 +300,45 @@ selected_artist = st.selectbox(
 
 # 必要に応じてアーティストで絞り込んで人気順に並び替え
 if selected_artist == "全アーティスト":
-    _df_sorted = df.sort_values("view_count", ascending=False)
-else:
-    _df_sorted = df[df["アーティスト"] == selected_artist].sort_values(
+    df_master = df.sort_values("view_count", ascending=False)
+elif selected_artist:
+    df_master = df[df["アーティスト"] == selected_artist].sort_values(
         "view_count", ascending=False
     )
+else:
+    df_master = df.sort_values("view_count", ascending=False)
 
 if selected_artist:
-    options = st.multiselect(
-        "好きな曲を選んでください（複数選択できて、文字での検索もできます）",
-        _df_sorted["title"],
-        placeholder=f"全曲リスト（人気順）",
-        label_visibility="visible",
-    )
+    if selected_artist == "全アーティスト":
+        options = st.multiselect(
+            "好きな曲を選んでください（複数選択や文字での検索もできます）",
+            df_master["artist"] + "_" + df_master["title"],
+            placeholder=f"全曲リスト（人気順）",
+            label_visibility="visible",
+        )
+    else:
+        options = st.multiselect(
+            "好きな曲を選んでください（複数選択や文字での検索もできます）",
+            df_master["title"],
+            placeholder=f"全曲リスト（人気順）",
+            label_visibility="visible",
+        )
 
     if options:
         # マルチセレクトのアクティブ時
         # 選択した曲に絞り込み
-        selected_df = df[df["title"].isin(options)]
+        if selected_artist == "全アーティスト":
+            # データフレームに変換し、アンダースコアで分割
+            df_options = pd.DataFrame(options, columns=["artist_title"])
+            df_options[["artist", "title"]] = df_options[
+                "artist_title"
+            ].str.split("_", expand=True)
+            selected_df = df_master[
+                (df_master["artist"].isin(df_options["artist"]))
+                & (df_master["title"].isin(df_options["title"]))
+            ]
+        else:
+            selected_df = df_master[df_master["title"].isin(options)]
         # 表示するものに絞り込む
         selected_df_display = selected_df[["曲名", "image_url"] + EMOTION_LIST]
 
@@ -404,24 +425,47 @@ if selected_artist:
             # 選ばれた曲ごとにタブを動的に生成
             tab_objects = st.tabs(options)
 
-            # 各タブに対応するコンテンツを表示
-            for tab, each_option in zip(tab_objects, options):
-                with tab:
-                    for each_emotion in EMOTION_LIST:
-                        # 感情ごとに色を変えて得点とその理由を表示
-                        st.write(
-                            f"<span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span> {each_emotion}　{str(
-                                        selected_df[selected_df["曲名"] == each_option][
-                                            each_emotion
-                                        ].values[0]
-                                    )}点 <span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span>",
-                            unsafe_allow_html=True,
-                        )
-                        st.write(
-                            selected_df[selected_df["曲名"] == each_option][
-                                each_emotion + "スコアの理由"
-                            ].values[0]
-                        )
+            if selected_artist == "全アーティスト":
+                # 各タブに対応するコンテンツを表示
+                for tab, each_option_artist, each_option_title in zip(
+                    tab_objects, df_options["artist"], df_options["title"]
+                ):
+                    with tab:
+                        for each_emotion in EMOTION_LIST:
+                            # 感情ごとに色を変えて得点とその理由を表示
+                            st.write(
+                                f"<span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span> {each_emotion}　{str(
+                                                selected_df[selected_df["曲名"] == each_option_title][
+                                                    each_emotion
+                                                ].values[0]
+                                            )}点 <span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span>",
+                                unsafe_allow_html=True,
+                            )
+                            st.write(
+                                selected_df[
+                                    selected_df["曲名"] == each_option_title
+                                ][each_emotion + "スコアの理由"].values[0]
+                            )
+
+            else:
+                # 各タブに対応するコンテンツを表示
+                for tab, each_option in zip(tab_objects, options):
+                    with tab:
+                        for each_emotion in EMOTION_LIST:
+                            # 感情ごとに色を変えて得点とその理由を表示
+                            st.write(
+                                f"<span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span> {each_emotion}　{str(
+                                                selected_df[selected_df["曲名"] == each_option][
+                                                    each_emotion
+                                                ].values[0]
+                                            )}点 <span style='background-color: {COLORS[each_emotion]}; padding: 4px; border-radius: 4px;'>　　</span>",
+                                unsafe_allow_html=True,
+                            )
+                            st.write(
+                                selected_df[
+                                    selected_df["曲名"] == each_option
+                                ][each_emotion + "スコアの理由"].values[0]
+                            )
 
         st.write("")
 
@@ -459,7 +503,7 @@ if selected_artist:
 
         # マルチセレクトのアクティブ時
         st.subheader(
-            "あなたの好きな曲に似た感情の曲",
+            f"感情別曲ランキング{"（"+selected_artist+"）" if selected_artist else ""}",
             anchor=False,
             divider="red",
         )
@@ -467,7 +511,7 @@ if selected_artist:
         # 選択されたスコアの値
         selected_song_scores = pd.DataFrame(values).T
         # コサイン類似度を計算
-        df_emotion = df[EMOTION_GRAPH]
+        df_emotion = df_master[EMOTION_GRAPH]
         similarities = cosine_similarity(selected_song_scores, df_emotion)[0]
 
         # 類似度に基づきデータフレームに新しい列を追加
@@ -479,7 +523,7 @@ if selected_artist:
         )
 
         # 類似度の高い曲の元の情報を参照
-        df_similarity = df.loc[top_similar_df.index.to_list()]
+        df_similarity = df_master.loc[top_similar_df.index.to_list()]
         # 選択済みの曲は除外
         df_similarity = df_similarity[~df_similarity["曲名"].isin(options)]
 
@@ -592,7 +636,7 @@ st.divider()
 st.write("")
 
 st.subheader(
-    "感情別曲ランキング",
+    f"感情別曲ランキング{"（"+selected_artist+"）" if selected_artist else ""}",
     anchor=False,
     divider="red",
 )
@@ -630,13 +674,17 @@ if selected_emotion:
 
     # 必要に応じてアーティストで絞り込み
     if selected_artist == "全アーティスト":
-        df_selected_emotion = df.sort_values("view_count", ascending=False)
-    if selected_artist == "全アーティスト":
-        df_selected_emotion = df[
-            df["アーティスト"] == selected_artist
+        df_selected_emotion = df_master.sort_values(
+            "view_count", ascending=False
+        )
+    elif selected_artist:
+        df_selected_emotion = df_master[
+            df_master["アーティスト"] == selected_artist
         ].sort_values("view_count", ascending=False)
     else:
-        df_selected_emotion = df.sort_values("view_count", ascending=False)
+        df_selected_emotion = df_master.sort_values(
+            "view_count", ascending=False
+        )
     # 並び替えて表示
     df_selected_emotion = df_selected_emotion.sort_values(
         selected_emotion, ascending=ascending_flg
