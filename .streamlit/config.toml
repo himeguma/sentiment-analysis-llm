@@ -1,0 +1,8 @@
+[global]
+developmentMode = false
+
+[theme]
+base = "dark"
+
+[client]
+toolbarMode = "viewer"
